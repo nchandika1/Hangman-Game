@@ -104,15 +104,12 @@ var firstKeyPress = true;
 // Index for the word Array;  Initialize to first word
 var wordIndex = 0;
 
-// Letter position being gussed
-var letterIndex = 0;
-
 document.onkeyup = function(event) {
 	var key = event.key;
 	var word;
 
 	key = key.toUpperCase();
-	console.log("key pressed");
+	console.log("Key: " + key);
 
 	if (wordIndex == wordArray.length) {
 		// Guessed all words!
@@ -128,7 +125,7 @@ document.onkeyup = function(event) {
 		firstKeyPress = false;
 	} else {
 		// Let us check if the key is a Match
-		console.log(word + ", "+ key+", "+word[letterIndex]);
+		console.log(word + ", " + key);
 
 		if (word_array.includes(key)) {
 			// One or more letters matched the  key
@@ -149,17 +146,17 @@ document.onkeyup = function(event) {
 				guesses_left = MAX_GUESSES; // reset guesses left
 
 				if (wordIndex == wordArray.length) {
-					// Guessed all words!
-					document.write("Game Over!");
+					// No more words
 					return;
+				} else {
+					// On to next word
+					word = wordArray[wordIndex];
+					initHangmanDisplay(word);
 				}
-				word = wordArray[wordIndex];
-				initHangmanDisplay(word);
 			} else {
 				// It is a partial match
-				// Create Hangman Str
-				updateDashArray(key);
-				updateHangmanDisplay(key);
+				updateDashArray(key); // update dashed array for display
+				updateHangmanDisplay(key); // update the display
 			}
 		} else {
 			// Letter is not part of the word
@@ -167,30 +164,24 @@ document.onkeyup = function(event) {
 
 			// Check if we are out of guesses
 			if (guesses_left == 0) {
-				console.log("Guesses reached max")
+				console.log("Max Guesses reached!")
 				showHangmanAnswer(word, key);
+
 				wordIndex++;
 				if (wordIndex == wordArray.length) {
-					// Guessed all words!
-					document.write("Game Over!");
 					return;
 				}
+				// On to the next word
 				word = wordArray[wordIndex];
 				guessed_string="";
 				guesses_left = MAX_GUESSES;
 				firstKeyPress = true;
 			} else {
-				console.log("guesses left: " + guesses_left);
+				console.log("Guesses Left: " + guesses_left);
 				updateHangmanDisplay(key);
 			}
 		}	
 	}  // firstKeyPress
-
-	if (wordIndex == wordArray.length) {
-		console.log("Game Over!");
-		wordIndex = 0;
-		return;
-	}
 }
 
 </script>
