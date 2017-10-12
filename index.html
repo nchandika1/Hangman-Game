@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang = "en-us">
+<head>
+	<title>Naga's Hangman Game</title>
+	<link rel="stylsheet" href="./assets/css/style.css">
+</head>
+<body>
+	<p id="header-text">Press any key to get started!</p>
+	<p>Wins: <span id="wins-text"></span></p>
+	<br>
+	<p id="hangman-text"></p>
+	<br>
+	<p>Guesses Left: <span id="guesses-left"></span></p>
+	<p>Letters already guessed:</p>
+	<p><span id="guessed-letters-text"></span></p>
+</body>
+
+<script type="text/javascript">
+
+// Create the word list for hangman
+var wordArray = ["INDIA", "DENMARK"];
+var dashArray = [];
+var win_score = 0;
+var guesses_left = 10;
+var guessed_string = "";
+var MAX_GUESSES = 10;
+
+// Elements for display
+var winsText = document.getElementById("wins-text");
+var hangManText = document.getElementById("hangman-text");
+var guessesLeftText = document.getElementById("guesses-left");
+var guessedLettersText = document.getElementById("guessed-letters-text");
+
+
+var word_array = [];
+var dash_array = [];
+function initArrays(word) {
+	// Let us empty the strings first
+	word_array=[];
+	dash_array=[];
+
+	// Create two arrays:   One for the word and the other for "-"s
+	for (var i =0; i<word.length; i++) {
+		word_array.push(word[i]);
+		dash_array.push("-");
+	}
+	console.log("Initialize Arrays: " + word_array + " and " + dash_array);
+
+}
+
+// Update the dash array with the new letter guessed
+function updateDashArray(letter) {
+	for (var i=0; i<word_array.length; i++) {
+		if (word_array[i] == letter) {
+			dash_array[i] = letter;
+		}
+		console.log("Dash Array: " + dash_array);
+	}	
+}
+
+//  Initialize the hangman game display for new word
+function initHangmanDisplay(word) {
+	console.log("initHangmanDisplay" + word);
+	initArrays(word);
+
+	winsText.innerHTML = win_score;
+	// for (var i=0; i<dash_array.length; i++) {
+	// 	hangManText.innerHTML += dash_array[i] + " ";
+	// }
+	hangManText.innerHTML = dash_array;	
+	guessesLeftText.innerHTML = MAX_GUESSES;
+	guessedLettersText.innerHTML = "";
+}
+
+// Update the hangman game display for next turn
+function updateHangmanDisplay(letter) {
+	winsText.innerHTML = win_score;
+	// for (var i=0; i<dash_array.length; i++) {
+	// 	hangManText.innerHTML += dash_array[i] + " ";
+	// }	
+	hangManText.innerHTML = dash_array;	
+	guessesLeftText.innerHTML = guesses_left;
+
+	// Check if the letter already present in Guessed list
+	// If yes, we don't need to add it again
+	if (!guessed_string.includes(letter)) {
+		guessed_string += letter;
+		guessedLettersText.innerHTML = guessed_string;
+	}
+}
+
+function showHangmanAnswer(word, letter) {
+	winsText.innerHTML = win_score;
+	hangManText.innerHTML = word;
+	guessesLeftText.innerHTML = 0;
+	if (!guessed_string.includes(letter)) {
+		guessed_string += letter;
+		guessedLettersText.innerHTML = guessed_string;
+	}
+}
+// Pess Any  Key case to start the game or restart a new word
+var firstKeyPress = true; 
+
+// Index for the word Array;  Initialize to first word
+var wordIndex = 0;
+
+// Letter position being gussed
+var letterIndex = 0;
+
+document.onkeyup = function(event) {
+	var key = event.key;
+	var word;
+
+	key = key.toUpperCase();
+	console.log("key pressed");
+
+	if (wordIndex == wordArray.length) {
+		// Guessed all words!
+		document.write("Game Over!");
+		return;
+	}
+
+	var word = wordArray[wordIndex];
+	if (firstKeyPress) {
+		//Press Any Key Case
+		//Display default Hangman game to start
+		initHangmanDisplay(word);
+		firstKeyPress = false;
+	} else {
+		// Let us check if the key is a Match
+		console.log(word + ", "+ key+", "+word[letterIndex]);
+
+		if (word_array.includes(key)) {
+			// One or more letters matched the  key
+
+			if (guessed_string.includes(key)) {
+				// The letter has already been guessed
+				// No Action needed
+				return;
+			}
+
+			console.log("correct!");
+			updateDashArray(key);
+			if (dash_array.includes("-") == false) {
+				// All letters guessed
+				win_score++; // update win score
+				wordIndex++; // move to next word
+				guessed_string=""; // initialize the guessed string to null
+				guesses_left = MAX_GUESSES; // reset guesses left
+
+				if (wordIndex == wordArray.length) {
+					// Guessed all words!
+					document.write("Game Over!");
+					return;
+				}
+				word = wordArray[wordIndex];
+				initHangmanDisplay(word);
+			} else {
+				// It is a partial match
+				// Create Hangman Str
+				updateDashArray(key);
+				updateHangmanDisplay(key);
+			}
+		} else {
+			// Letter is not part of the word
+			guesses_left--;
+
+			// Check if we are out of guesses
+			if (guesses_left == 0) {
+				console.log("Guesses reached max")
+				showHangmanAnswer(word, key);
+				wordIndex++;
+				if (wordIndex == wordArray.length) {
+					// Guessed all words!
+					document.write("Game Over!");
+					return;
+				}
+				word = wordArray[wordIndex];
+				guessed_string="";
+				guesses_left = MAX_GUESSES;
+				firstKeyPress = true;
+			} else {
+				console.log("guesses left: " + guesses_left);
+				updateHangmanDisplay(key);
+			}
+		}	
+	}  // firstKeyPress
+
+	if (wordIndex == wordArray.length) {
+		console.log("Game Over!");
+		wordIndex = 0;
+		return;
+	}
+}
+
+</script>
+</html>
