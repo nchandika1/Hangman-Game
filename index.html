@@ -2,28 +2,40 @@
 <html lang = "en-us">
 <head>
 	<title>Naga's Hangman Game</title>
-	<link rel="stylsheet" href="./assets/css/style.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link rel="stylesheet" href="./assets/css/style.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
 </head>
 <body>
-	<p id="header-text">Press any key to get started!</p>
-	<p>Wins: <span id="wins-text"></span></p>
+	<div>
+	    <h1 align="center">Hangman!</h1>
+	    <p class="header" align="center">Today's theme is <strong>"COUNTIRES AROUND THE WORLD!".</strong></p>
+	</div>
 	<br>
-	<p id="hangman-text"></p>
-	<br>
-	<p>Guesses Left: <span id="guesses-left"></span></p>
-	<p>Letters already guessed:</p>
-	<p><span id="guessed-letters-text"></span></p>
-	<h3>Result: <span id="result-text"></span></h3>
+	<div id="box-text" class="box" align="center">
+		<h3 id="header-text">Press any key to get started!</h3>
+		<br>
+		<p>Wins: <span id="wins-text"></span></p>
+		<br>
+		<p id="hangman-text"></p>
+		<br>
+		<p>Guesses Left: <span id="guesses-left"></span></p>
+		<p>Letters already guessed:</p>
+		<p><span id="guessed-letters-text"></span></p>
+		<h3>Result: <span id="result-text"></span></h3>
+	</div>
 </body>
 
 <script type="text/javascript">
 
 // Create the word list for hangman
-var wordArray = ["INDIA", "DENMARK"];
+var wordArray = ["CHILE", "TURKEY", "INDIA", "DENMARK", "FRANCE", "MALAYSIA"];
+
 var dashArray = [];
 var win_score = 0;
 var guessed_string = "";
-var MAX_GUESSES = 3;
+var MAX_GUESSES = 6;
 var guesses_left = MAX_GUESSES;
 
 // Elements for display
@@ -79,7 +91,7 @@ function updateHangmanDisplay() {
 	hangManText.innerHTML = dash_array;	
 	guessesLeftText.innerHTML = guesses_left;
 	guessedLettersText.innerHTML = guessed_string;
-	resultText.innerHTML = "Keep Plaaying!";
+	resultText.innerHTML = "Keep Playing!";
 }
 
 function winHangmanDisplay(word) {
@@ -133,7 +145,9 @@ document.onkeyup = function(event) {
 
 	if (wordIndex == wordArray.length) {
 		// Guessed all words!
-		document.write("Game Over!");
+		// document.write("Game Over!");
+		$("#box-text").html("Game Over!")
+		$("#box-text").append("<div>" + "Wins: "+ win_score + "</div>");
 		return;
 	}
 

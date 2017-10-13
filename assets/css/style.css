@@ -1,0 +1,17 @@
+body {
+	background-image: url("../../assets/images/world_map.jpeg");
+	background-repeat:no-repeat;
+	background-position: center; 
+}
+
+.box {
+	background-color: light gray;
+	height:400px;
+	width: 500px;
+	margin:auto;
+	border: 5px solid blue;
+}
+
+p.header {
+	font-weight: bolder;
+}
