@@ -13,6 +13,7 @@
 	<p>Guesses Left: <span id="guesses-left"></span></p>
 	<p>Letters already guessed:</p>
 	<p><span id="guessed-letters-text"></span></p>
+	<h3>Result: <span id="result-text"></span></h3>
 </body>
 
 <script type="text/javascript">
@@ -21,16 +22,16 @@
 var wordArray = ["INDIA", "DENMARK"];
 var dashArray = [];
 var win_score = 0;
-var guesses_left = 10;
 var guessed_string = "";
-var MAX_GUESSES = 10;
+var MAX_GUESSES = 3;
+var guesses_left = MAX_GUESSES;
 
 // Elements for display
 var winsText = document.getElementById("wins-text");
 var hangManText = document.getElementById("hangman-text");
 var guessesLeftText = document.getElementById("guesses-left");
 var guessedLettersText = document.getElementById("guessed-letters-text");
-
+var resultText = document.getElementById("result-text");
 
 var word_array = [];
 var dash_array = [];
@@ -61,45 +62,64 @@ function updateDashArray(letter) {
 //  Initialize the hangman game display for new word
 function initHangmanDisplay(word) {
 	console.log("initHangmanDisplay" + word);
-	initArrays(word);
+
+	initArrays(word); // Create arrays for display
 
 	winsText.innerHTML = win_score;
-	// for (var i=0; i<dash_array.length; i++) {
-	// 	hangManText.innerHTML += dash_array[i] + " ";
-	// }
 	hangManText.innerHTML = dash_array;	
 	guessesLeftText.innerHTML = MAX_GUESSES;
 	guessedLettersText.innerHTML = "";
+	resultText.innerHTML = "Start Playing";
 }
 
 // Update the hangman game display for next turn
-function updateHangmanDisplay(letter) {
+function updateHangmanDisplay() {
+	console.log("updateHangmanDisplay");
 	winsText.innerHTML = win_score;
-	// for (var i=0; i<dash_array.length; i++) {
-	// 	hangManText.innerHTML += dash_array[i] + " ";
-	// }	
 	hangManText.innerHTML = dash_array;	
 	guessesLeftText.innerHTML = guesses_left;
-
-	// Check if the letter already present in Guessed list
-	// If yes, we don't need to add it again
-	if (!guessed_string.includes(letter)) {
-		guessed_string += letter;
-		guessedLettersText.innerHTML = guessed_string;
-	}
+	guessedLettersText.innerHTML = guessed_string;
+	resultText.innerHTML = "Keep Plaaying!";
 }
 
-function showHangmanAnswer(word, letter) {
+function winHangmanDisplay(word) {
+	console.log("winHangmanDisplay");
+	winsText.innerHTML = win_score;
+	hangManText.innerHTML = word;
+	guessesLeftText.innerHTML = guesses_left;
+	guessedLettersText.innerHTML = guessed_string;
+	resultText.innerHTML = "CORRECT!";
+}
+
+function loseHangmanDisplay(word) {
+	console.log("loseHangmanDisplay");
 	winsText.innerHTML = win_score;
 	hangManText.innerHTML = word;
 	guessesLeftText.innerHTML = 0;
+	guessedLettersText.innerHTML = guessed_string;
+	resultText.innerHTML = "WRONG! TRY NEXT WORD!";
+}
+
+function updateScore() {
+	win_score++;
+}
+
+function updateGuesses(letter) {
+	guesses_left--;
+
+	// If the letter was previously guessed then don't update the guessed list for display
 	if (!guessed_string.includes(letter)) {
 		guessed_string += letter;
-		guessedLettersText.innerHTML = guessed_string;
 	}
 }
+
+function resetGuesses() {
+	guesses_left = MAX_GUESSES;
+	guessed_string = ""
+}
+
 // Pess Any  Key case to start the game or restart a new word
-var firstKeyPress = true; 
+var pressAnyKey = true; 
 
 // Index for the word Array;  Initialize to first word
 var wordIndex = 0;
@@ -118,64 +138,95 @@ document.onkeyup = function(event) {
 	}
 
 	var word = wordArray[wordIndex];
-	if (firstKeyPress) {
+	if (pressAnyKey) {
 		//Press Any Key Case
 		//Display default Hangman game to start
 		initHangmanDisplay(word);
-		firstKeyPress = false;
+		pressAnyKey = false;
 	} else {
-		// Let us check if the key is a Match
-		console.log(word + ", " + key);
 
+		// Check if the key is present in the word
+		// Note: There can be multiple instances of the letter in the word!
 		if (word_array.includes(key)) {
-			// One or more letters matched the  key
 
+			// One or more letters matched the  key
+			console.log(key + "is a match!")
+
+			// Check if the letter has already been guessed, if yes then do nothing!
 			if (guessed_string.includes(key)) {
-				// The letter has already been guessed
-				// No Action needed
 				return;
 			}
 
-			console.log("correct!");
+			// Update the "-" string with the key matched in the word.
+			// Note: Check for multiple instances of the key in the word.
+			// Update "-" array accordingly.
+			// E.g. INDIA has two instances of I.  So dash array would look like I _ _ I _
 			updateDashArray(key);
+
+
+			// After updating the dash_array with the key, check if any more "_"s left
+			// If no more then the user guessed all of them.  User wins!
 			if (dash_array.includes("-") == false) {
 				// All letters guessed
-				win_score++; // update win score
-				wordIndex++; // move to next word
-				guessed_string=""; // initialize the guessed string to null
-				guesses_left = MAX_GUESSES; // reset guesses left
+				console.log("All letters guessed correctly!");
 
+				updateScore(); // Increment wins
+				resetGuesses(); // Reset Guesses
+
+				wordIndex++; // move to next word
+				
+				//Update screen to reflect the score
+				winHangmanDisplay(word);
+
+				//  Check if we have more words in the array for the user to guess
+				//  If not, display appropriate message and exit 
 				if (wordIndex == wordArray.length) {
-					// No more words
+					// Reached the end of the word array
+					console.log("Game over, no more words left!");
 					return;
 				} else {
 					// On to next word
 					word = wordArray[wordIndex];
-					initHangmanDisplay(word);
+
+					// Let the user press a key to go to next word
+					pressAnyKey = true;
 				}
 			} else {
-				// It is a partial match
-				updateDashArray(key); // update dashed array for display
-				updateHangmanDisplay(key); // update the display
+				// Partial Match:  We still have ore letters to go
+				// Update display with appropraite "Guessed List of Characters"
+				// Also update the "_" with the current guess
+				updateDashArray(key); 
+				updateHangmanDisplay(); 
+
+				// Continue to wait for the next guess
 			}
 		} else {
-			// Letter is not part of the word
-			guesses_left--;
+			// Letter is not part of the word.  Incorrect Guess!
+			// Update guesses left count and also the guesses list for display
+			updateGuesses(key);
 
 			// Check if we are out of guesses
 			if (guesses_left == 0) {
+			
 				console.log("Max Guesses reached!")
-				showHangmanAnswer(word, key);
 
+				// User lost!  Display the answer
+				loseHangmanDisplay(word);
+
+				// On to the next word.  Check if we exchausted all the words in the array
+				// If yes, then display Game Over!
 				wordIndex++;
 				if (wordIndex == wordArray.length) {
+					console.log("Game over, no more words left!");
 					return;
 				}
+
 				// On to the next word
 				word = wordArray[wordIndex];
-				guessed_string="";
-				guesses_left = MAX_GUESSES;
-				firstKeyPress = true;
+				resetGuesses();
+
+				// Go to next word when the user presses any key
+				pressAnyKey = true;
 			} else {
 				console.log("Guesses Left: " + guesses_left);
 				updateHangmanDisplay(key);
